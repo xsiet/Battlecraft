@@ -1,8 +1,10 @@
-package io.github.xsiet.battlecraft
+package io.github.xsiet.battlecraft.game
 
 import com.mojang.authlib.GameProfile
 import com.mojang.authlib.properties.Property
 import com.mojang.datafixers.util.Pair
+import io.github.xsiet.battlecraft.BattlecraftPlugin
+import io.github.xsiet.battlecraft.items.CustomItems
 import io.github.xsiet.battlecraft.utils.playSound
 import io.github.xsiet.battlecraft.utils.sendPacket
 import io.github.xsiet.battlecraft.utils.toCraftPlayer
@@ -23,6 +25,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.event.player.PlayerInteractAtEntityEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.inventory.EquipmentSlot
+import org.bukkit.inventory.ItemStack
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -45,7 +48,7 @@ class Corpse(
             }
             server.scheduler.runTaskLater(plugin, Runnable {
                 sendPacket(ClientboundPlayerInfoRemovePacket(listOf(corpse.uuid)))
-            }, 20L)
+            }, 40L)
         }
     }
     init {
@@ -81,12 +84,18 @@ class Corpse(
         }
         val inventory = player.inventory
         corpseInventory.apply {
-            //setItem(4, CustomItem.getPlayerHead(deadPlayer))
-            setItem(11, inventory.getItem(EquipmentSlot.HEAD))
-            setItem(12, inventory.getItem(EquipmentSlot.CHEST))
-            setItem(13, inventory.getItem(EquipmentSlot.LEGS))
-            setItem(14, inventory.getItem(EquipmentSlot.FEET))
-            setItem(15, inventory.getItem(EquipmentSlot.OFF_HAND))
+            for (int: Int in 0..17) {
+                fun setItem(itemStack: ItemStack) = setItem(int, itemStack)
+                when (int) {
+                    4 -> setItem(CustomItems.getPlayerHead(player))
+                    11 -> setItem(inventory.getItem(EquipmentSlot.HEAD))
+                    12 -> setItem(inventory.getItem(EquipmentSlot.CHEST))
+                    13 -> setItem(inventory.getItem(EquipmentSlot.LEGS))
+                    14 -> setItem(inventory.getItem(EquipmentSlot.FEET))
+                    15 -> setItem(inventory.getItem(EquipmentSlot.OFF_HAND))
+                    else -> setItem(CustomItems.lockedSlot)
+                }
+            }
             var slot = 45
             for (int: Int in 0..35) {
                 setItem(slot, inventory.getItem(int))
@@ -101,7 +110,8 @@ class Corpse(
                         Pair(net.minecraft.world.entity.EquipmentSlot.HEAD, CraftItemStack.asNMSCopy(corpseInventory.getItem(11))),
                         Pair(net.minecraft.world.entity.EquipmentSlot.CHEST, CraftItemStack.asNMSCopy(corpseInventory.getItem(12))),
                         Pair(net.minecraft.world.entity.EquipmentSlot.LEGS, CraftItemStack.asNMSCopy(corpseInventory.getItem(13))),
-                        Pair(net.minecraft.world.entity.EquipmentSlot.FEET, CraftItemStack.asNMSCopy(corpseInventory.getItem(14)))
+                        Pair(net.minecraft.world.entity.EquipmentSlot.FEET, CraftItemStack.asNMSCopy(corpseInventory.getItem(14))),
+                        Pair(net.minecraft.world.entity.EquipmentSlot.OFFHAND, CraftItemStack.asNMSCopy(corpseInventory.getItem(15)))
                     )))
                 }
             }

@@ -1,20 +1,17 @@
 package io.github.xsiet.battlecraft
 
+import io.github.xsiet.battlecraft.game.GameWorld
 import io.github.xsiet.battlecraft.game.core.Game
-import io.github.xsiet.battlecraft.game.world.GameWorld
+import org.bukkit.event.Listener
 import org.bukkit.plugin.java.JavaPlugin
 import org.popcraft.chunky.api.ChunkyAPI
 
 class BattlecraftPlugin: JavaPlugin() {
-    val chunky get() = server.servicesManager.load(ChunkyAPI::class.java)!!
-    lateinit var gameWorld: GameWorld
-    lateinit var game: Game
-    override fun onEnable() {
-        gameWorld = GameWorld(this)
-        game = Game(this)
-        registerGameKommand()
+    val chunkyAPI get() = server.servicesManager.load(ChunkyAPI::class.java)!!
+    fun registerEvents(listener: Listener) {
+        server.pluginManager.registerEvents(listener, this)
     }
-    override fun onDisable() {
-        gameWorld.delete()
+    override fun onEnable() {
+        registerKommand(Game(this, GameWorld(this)))
     }
 }

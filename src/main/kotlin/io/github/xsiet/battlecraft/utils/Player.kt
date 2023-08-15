@@ -37,16 +37,20 @@ fun Player.playSound(key: String) {
 fun Player.addPotionEffect(type: PotionEffectType, duration: Int, amplifier: Int, showStatus: Boolean) {
     addPotionEffect(PotionEffect(type, duration, amplifier, showStatus, showStatus, showStatus))
 }
+fun Player.addPotionEffect(type: PotionEffectType, duration: Int, amplifier: Int) {
+    addPotionEffect(PotionEffect(type, duration, amplifier))
+}
 fun Player.teleport(world: World, x: Double, y: Double, z: Double) = teleport(Location(world, x, y, z))
 fun Player.toCraftPlayer() = player as CraftPlayer
 fun Player.sendPacket(packet: Packet<ClientGamePacketListener>) = toCraftPlayer().handle.connection.send(packet)
+val Player.genericMaxHealth get() = getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.value
 fun Player.resetData() {
     inventory.clear()
     exp = 0F
     level = 0
     clearActivePotionEffects()
     foodLevel = 20
-    health = getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.value
+    health = genericMaxHealth
     val advancementIterator = Bukkit.advancementIterator()
     while (advancementIterator.hasNext()) {
         getAdvancementProgress(advancementIterator.next()).apply {
@@ -56,3 +60,4 @@ fun Player.resetData() {
         }
     }
 }
+fun Player.saveLastLocation() = setBedSpawnLocation(location, true)

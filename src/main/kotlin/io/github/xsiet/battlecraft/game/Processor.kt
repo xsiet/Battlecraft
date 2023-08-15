@@ -1,7 +1,7 @@
-package io.github.xsiet.battlecraft
+package io.github.xsiet.battlecraft.game
 
+import io.github.xsiet.battlecraft.BattlecraftPlugin
 import io.github.xsiet.battlecraft.utils.playSound
-import io.github.xsiet.battlecraft.utils.showTitle
 import net.kyori.adventure.bossbar.BossBar
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor
@@ -26,17 +26,14 @@ class Processor(
     fun run() {
         var process = processes[0]
         val bossBar = BossBar.bossBar(text(""), 0F, BossBar.Color.GREEN, BossBar.Overlay.PROGRESS)
-        fun getRemainingTimeComponent(color: NamedTextColor) = text("${process.remainingMinutes}분 ${process.remainingSeconds}초"
-            .replace(" 0초", ""), color)
+        fun getRemainingTimeComponent(color: NamedTextColor) = text("${process.remainingMinutes}분 ${process.remainingSeconds}초", color)
         fun getProcessNameComponent() = text(process.name, NamedTextColor.GOLD)
         fun sendNotify(timeColor: NamedTextColor) {
             if (process.notify) {
-                val message = getProcessNameComponent()
+                server.sendMessage(getProcessNameComponent()
                     .append(text("까지 ", NamedTextColor.WHITE))
                     .append(getRemainingTimeComponent(timeColor))
-                    .append(text(" 남았습니다!", NamedTextColor.WHITE))
-                server.broadcast(message)
-                server.showTitle(text(""), message)
+                    .append(text(" 남았습니다!", NamedTextColor.WHITE)))
                 server.playSound("ui.button.click")
             }
         }
@@ -71,12 +68,14 @@ class Processor(
                     0 -> when (process.remainingSeconds) {
                         30, 15, 10, 5, 4, 3, 2, 1 -> sendNotify(NamedTextColor.RED)
                         0 -> {
-                            server.onlinePlayers.forEach {
-                                if (bossBar.viewers().contains(it)) bossBar.removeViewer(it)
-                            }
                             process.task.run()
                             processes.remove(process)
-                            if (processes.isEmpty()) recess = true
+                            if (processes.isEmpty()) {
+                                server.onlinePlayers.forEach {
+                                    if (bossBar.viewers().contains(it)) bossBar.removeViewer(it)
+                                }
+                                recess = true
+                            }
                             else process = processes[0]
                         }
                     }

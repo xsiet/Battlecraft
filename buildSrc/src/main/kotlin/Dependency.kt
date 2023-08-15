@@ -22,4 +22,7 @@ object Dependency {
         KotlinStdlib,
         "io.github.monun:kommand-core:${Kommand.Version}"
     )
+    val DependPlugins = listOf(
+        "Chunky"
+    )
 }

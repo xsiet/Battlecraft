@@ -1,3 +1,5 @@
+import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
+
 plugins {
     kotlin("jvm") version Dependency.Kotlin.Version
     id("io.papermc.paperweight.userdev") version "1.5.5"
@@ -23,6 +25,7 @@ bukkit {
     apiVersion = Dependency.Paper.APIVersion
     main = "io.github.xsiet.${rootProject.name.lowercase()}.${rootProject.name}Plugin"
     libraries = Dependency.Libraries
+    depend = Dependency.DependPlugins
 }
 tasks {
     withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
